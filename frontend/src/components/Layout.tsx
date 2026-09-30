@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { isOfflineActive, onOfflineChange } from "../api/offline";
 
 const NAV: { section: string; items: { to: string; label: string; icon: typeof LayoutDashboard }[] }[] = [
   { section: "Overview", items: [{ to: "/", label: "Overview", icon: LayoutDashboard }] },
@@ -76,7 +77,10 @@ const TITLES: Record<string, string> = {
 export function Layout({ onRunDemo }: { onRunDemo: () => void }) {
   const [dark, setDark] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [offline, setOffline] = useState(isOfflineActive());
   const location = useLocation();
+
+  useEffect(() => onOfflineChange(setOffline), []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -155,8 +159,12 @@ export function Layout({ onRunDemo }: { onRunDemo: () => void }) {
             <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">Demo Data</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 live-dot" />
-            <span className="text-[11px] text-slate-400">System Operational</span>
+            <span
+              className={`w-2 h-2 rounded-full live-dot ${offline ? "bg-amber-400" : "bg-emerald-400"}`}
+            />
+            <span className={`text-[11px] ${offline ? "text-amber-400 font-semibold" : "text-slate-400"}`}>
+              {offline ? "Bundled demo data" : "System Operational"}
+            </span>
           </div>
           <div className="flex items-center gap-2 pt-1">
             <User className="w-3.5 h-3.5 text-slate-400" />
@@ -179,6 +187,11 @@ export function Layout({ onRunDemo }: { onRunDemo: () => void }) {
             <span className="hidden sm:inline text-[10px] font-semibold text-muted border border-border rounded px-1.5 py-0.5 shrink-0">
               OIL-ASSAM-001
             </span>
+            {offline && (
+              <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 border border-amber-400 rounded px-1.5 py-0.5 shrink-0">
+                Offline demo
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
